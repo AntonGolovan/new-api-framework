@@ -1,3 +1,4 @@
+from typing import Optional
 import requests
 from restclient.client import RestClient
 
@@ -12,8 +13,8 @@ class MailhogApi(RestClient):
 
     def get_api_v2_messages(
             self,
-            limit=50
-    ):
+            limit: int = 50
+    ) -> requests.Response:
         """
         Получение email-сообщений из MailHog.
         
@@ -26,11 +27,11 @@ class MailhogApi(RestClient):
         Raises:
             requests.HTTPError: Если получение сообщений не удалось
         """
-        params = {
+        params: dict = {
             'limit': limit
         }
 
-        response = self.get(
+        response: requests.Response = self.get(
             path=f'/api/v2/messages',
             params=params,
             verify=False

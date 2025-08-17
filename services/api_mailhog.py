@@ -13,12 +13,12 @@ class MailHogApi:
     def __init__(
             self,
             configuration: Configuration
-    ):
+    ) -> None:
         """
         Инициализация сервиса MailHog.
         
         Args:
             configuration (Configuration): Конфигурация для подключения к MailHog
         """
-        self.configuration = configuration
-        self.mailhog_api = MailhogApi(configuration=configuration)
+        self.configuration: Configuration = configuration
+        self.mailhog_api: MailhogApi = MailhogApi(configuration=configuration)

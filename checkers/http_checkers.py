@@ -1,12 +1,14 @@
 import requests
 from contextlib import contextmanager
 from requests.exceptions import HTTPError
+from typing import Generator
 
 
 @contextmanager
 def check_status_code_http(
-        expected_status_code: requests.codes.OK,
-        expected_message: str = ""):
+        expected_status_code: int,
+        expected_message: str = ""
+) -> Generator[None, None, None]:
     """
     Контекстный менеджер для проверки HTTP-статус-кодов и сообщений об ошибках.
     

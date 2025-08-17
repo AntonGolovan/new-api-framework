@@ -1,3 +1,5 @@
+from typing import Union, Any, Dict
+from requests import Response
 from dm_api_account.models.change_email import ChangeEmail
 from dm_api_account.models.change_password import ChangePassword
 from dm_api_account.models.reset_password import ResetPassword
@@ -14,7 +16,7 @@ class AccountApi(RestClient):
     и другими операциями с аккаунтами пользователей.
     """
 
-    def post_v1_account(self, registration: Registration):
+    def post_v1_account(self, registration: Registration) -> Response:
         """
         Регистрация нового пользователя.
         
@@ -27,7 +29,7 @@ class AccountApi(RestClient):
         Raises:
             requests.HTTPError: Если регистрация не удалась
         """
-        response = self.post(
+        response: Response = self.post(
             path=f'/v1/account',
             json=registration.model_dump(exclude_none=True, by_alias=True)
         )
@@ -36,9 +38,9 @@ class AccountApi(RestClient):
     def post_v1_account_password(
             self,
             reset_password: ResetPassword,
-            validate_response=True,
-            **kwargs
-    ):
+            validate_response: bool = True,
+            **kwargs: Any
+    ) -> Union[UserEnvelope, Response]:
         """
         Сброс пароля зарегистрированного пользователя.
         
@@ -53,7 +55,7 @@ class AccountApi(RestClient):
         Raises:
             requests.HTTPError: Если сброс пароля не удался
         """
-        response = self.post(
+        response: Response = self.post(
             path=f'/v1/account/password',
             json=reset_password.model_dump(exclude_none=True, by_alias=True),
             **kwargs
@@ -65,9 +67,9 @@ class AccountApi(RestClient):
     def put_v1_account_password(
             self,
             change_password: ChangePassword,
-            validate_response=True,
-            **kwargs
-    ):
+            validate_response: bool = True,
+            **kwargs: Any
+    ) -> Union[UserEnvelope, Response]:
         """
         Изменение пароля зарегистрированного пользователя.
         
@@ -82,7 +84,7 @@ class AccountApi(RestClient):
         Raises:
             requests.HTTPError: Если изменение пароля не удалось
         """
-        response = self.put(
+        response: Response = self.put(
             path=f'/v1/account/password',
             json=change_password.model_dump(exclude_none=True, by_alias=True),
             **kwargs
@@ -93,9 +95,9 @@ class AccountApi(RestClient):
 
     def get_v1_account(
             self,
-            validate_response=True,
-            **kwargs
-    ):
+            validate_response: bool = True,
+            **kwargs: Any
+    ) -> Union[UserDetailsEnvelope, Response]:
         """
         Получение данных текущего пользователя.
         
@@ -109,7 +111,7 @@ class AccountApi(RestClient):
         Raises:
             requests.HTTPError: Если получение данных не удалось
         """
-        response = self.get(
+        response: Response = self.get(
             path=f'/v1/account',
             **kwargs
         )
@@ -119,9 +121,9 @@ class AccountApi(RestClient):
 
     def put_v1_account_token(
             self,
-            token,
-            validate_response=True
-    ):
+            token: str,
+            validate_response: bool = True
+    ) -> Union[UserEnvelope, Response]:
         """
         Активация зарегистрированного пользователя по токену.
         
@@ -135,8 +137,8 @@ class AccountApi(RestClient):
         Raises:
             requests.HTTPError: Если активация не удалась
         """
-        headers = {'accept': 'text/plain',}
-        response = self.put(
+        headers: Dict[str, str] = {'accept': 'text/plain',}
+        response: Response = self.put(
             path=f'/v1/account/{token}',
             headers=headers
         )
@@ -147,7 +149,7 @@ class AccountApi(RestClient):
     def put_v1_account_email(
             self,
             change_email: ChangeEmail
-    ):
+    ) -> Response:
         """
         Изменение email зарегистрированного пользователя.
         
@@ -160,7 +162,7 @@ class AccountApi(RestClient):
         Raises:
             requests.HTTPError: Если изменение email не удалось
         """
-        response = self.put(
+        response: Response = self.put(
             path=f'/v1/account/email',
             json=change_email.model_dump(exclude_none=True, by_alias=True)
         )
@@ -168,8 +170,8 @@ class AccountApi(RestClient):
 
     def delete_v1_account_login(
             self,
-            **kwargs
-    ):
+            **kwargs: Any
+    ) -> None:
         """
         Выход текущего пользователя из системы.
         
@@ -186,8 +188,8 @@ class AccountApi(RestClient):
 
     def delete_v1_account_login_all(
             self,
-            **kwargs
-    ):
+            **kwargs: Any
+    ) -> None:
         """
         Выход пользователя со всех устройств.
         

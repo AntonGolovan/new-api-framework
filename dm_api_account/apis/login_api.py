@@ -1,3 +1,5 @@
+from typing import Union
+from requests import Response
 from dm_api_account.models.login_credentials import LoginCredentials
 from dm_api_account.models.user_envelope import UserEnvelope
 from restclient.client import RestClient
@@ -13,8 +15,8 @@ class LoginApi(RestClient):
     def post_v1_account_login(
             self,
             login_credentials: LoginCredentials,
-            validate_response=True
-    ):
+            validate_response: bool = True
+    ) -> Union[UserEnvelope, Response]:
         """
         Аутентификация пользователя по учетным данным.
         
@@ -28,7 +30,7 @@ class LoginApi(RestClient):
         Raises:
             requests.HTTPError: Если аутентификация не удалась
         """
-        response = self.post(
+        response: Response = self.post(
             path=f'/v1/account/login',
             json=login_credentials.model_dump(exclude_none=True, by_alias=True)
         )

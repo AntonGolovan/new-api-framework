@@ -1,8 +1,9 @@
 
-from requests import (session,JSONDecodeError)
+from requests import (session, JSONDecodeError, Response, Session)
 import structlog
 import uuid
 import curlify
+from typing import Optional, Dict, Any
 
 from restclient.configuration import Configuration
 
@@ -18,20 +19,20 @@ class RestClient:
     def __init__(
             self,
             configuration: Configuration
-    ):
+    ) -> None:
         """
         Инициализация HTTP-клиента.
         
         Args:
             configuration (Configuration): Конфигурация клиента, содержащая host, headers и настройки логирования
         """
-        self.host = configuration.host
+        self.host: str = configuration.host
         self.set_headers(configuration.headers)
-        self.disable_log = configuration.disable_log
-        self.session = session()
+        self.disable_log: bool = configuration.disable_log
+        self.session: Session = session()
         self.log = structlog.getLogger(__name__).bind(service='api')
 
-    def set_headers(self, headers):
+    def set_headers(self, headers: Optional[Dict[str, str]]) -> None:
         """
         Установка HTTP-заголовков для всех запросов.
         
@@ -43,9 +44,9 @@ class RestClient:
 
     def post(
             self,
-            path,
-            **kwargs
-    ):
+            path: str,
+            **kwargs: Any
+    ) -> Response:
         """
         Выполнение HTTP POST запроса.
         
@@ -63,9 +64,9 @@ class RestClient:
 
     def get(
             self,
-            path,
-            **kwargs
-    ):
+            path: str,
+            **kwargs: Any
+    ) -> Response:
         """
         Выполнение HTTP GET запроса.
         
@@ -83,9 +84,9 @@ class RestClient:
 
     def put(
             self,
-            path,
-            **kwargs
-    ):
+            path: str,
+            **kwargs: Any
+    ) -> Response:
         """
         Выполнение HTTP PUT запроса.
         
@@ -103,9 +104,9 @@ class RestClient:
 
     def delete(
             self,
-            path,
-            **kwargs
-    ):
+            path: str,
+            **kwargs: Any
+    ) -> Response:
         """
         Выполнение HTTP DELETE запроса.
         
@@ -121,7 +122,7 @@ class RestClient:
         """
         return self._send_request(method='DELETE', path=path, **kwargs)
 
-    def _send_request(self, method, path, **kwargs):
+    def _send_request(self, method: str, path: str, **kwargs: Any) -> Response:
         """
         Внутренний метод для выполнения HTTP-запросов.
         
@@ -139,10 +140,10 @@ class RestClient:
             requests.HTTPError: Если сервер вернул ошибку HTTP
         """
         log = self.log.bind(event_id=str(uuid.uuid4()))
-        full_url = self.host + path
+        full_url: str = self.host + path
 
         if self.disable_log:
-            rest_response = self.session.request(method=method, url=full_url, **kwargs)
+            rest_response: Response = self.session.request(method=method, url=full_url, **kwargs)
             rest_response.raise_for_status()  # Метод выбрасывает исключение если ответ от сервера отличается от 200
             return rest_response
 
@@ -155,9 +156,9 @@ class RestClient:
             json=kwargs.get('json'),
             data=kwargs.get('data'),
         )
-        rest_response = self.session.request(method=method, url=full_url, **kwargs)
+        rest_response: Response = self.session.request(method=method, url=full_url, **kwargs)
 
-        curl = curlify.to_curl(rest_response.request)
+        curl: str = curlify.to_curl(rest_response.request)
         print(curl)
 
         log.msg(
@@ -170,7 +171,7 @@ class RestClient:
         return rest_response
 
     @staticmethod
-    def _get_json(rest_response):
+    def _get_json(rest_response: Response) -> Dict[str, Any]:
         """
         Извлечение JSON из HTTP-ответа.
         

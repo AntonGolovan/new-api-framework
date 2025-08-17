@@ -1,3 +1,6 @@
+from typing import Optional, Dict
+
+
 class Configuration:
     """
     Класс конфигурации для HTTP-клиентов.
@@ -9,9 +12,9 @@ class Configuration:
     def __init__(
             self,
             host: str,
-            headers: dict = None,
+            headers: Optional[Dict[str, str]] = None,
             disable_log: bool = True
-    ):
+    ) -> None:
         """
         Инициализация конфигурации.
         
@@ -20,6 +23,6 @@ class Configuration:
             headers (dict, optional): Дополнительные HTTP-заголовки для всех запросов
             disable_log (bool, optional): Отключение логирования запросов. По умолчанию True
         """
-        self.host = host
-        self.headers = headers
-        self.disable_log = disable_log
+        self.host: str = host
+        self.headers: Optional[Dict[str, str]] = headers
+        self.disable_log: bool = disable_log

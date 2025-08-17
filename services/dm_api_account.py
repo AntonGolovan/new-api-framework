@@ -14,13 +14,13 @@ class DMApiAccount:
     def __init__(
             self,
             configuration: Configuration
-    ):
+    ) -> None:
         """
         Инициализация сервиса API аккаунтов.
         
         Args:
             configuration (Configuration): Конфигурация для подключения к API
         """
-        self.configuration = configuration
-        self.account_api = AccountApi(configuration=configuration)
-        self.login_api = LoginApi(configuration=configuration)
+        self.configuration: Configuration = configuration
+        self.account_api: AccountApi = AccountApi(configuration=configuration)
+        self.login_api: LoginApi = LoginApi(configuration=configuration)
