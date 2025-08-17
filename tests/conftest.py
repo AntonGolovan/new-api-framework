@@ -1,14 +1,13 @@
+import pytest
+import structlog
+from faker import Faker
 from datetime import datetime
 from collections import namedtuple
-
-import pytest
-
 from helpers.account_helper import AccountHelper
 from restclient.configuration import Configuration as MailhogConfiguration
 from restclient.configuration import Configuration as DmApiConfiguration
 from services.dm_api_account import DMApiAccount
 from services.api_mailhog import MailHogApi
-import structlog
 
 structlog.configure(
     processors=[
@@ -68,3 +67,8 @@ def prepare_user():
     User = namedtuple("User", ["login", "password", "email"])
     user = User(login=login, password=password, email=email)
     return user
+
+@pytest.fixture(name="fake")
+def fake_data():
+    fake = Faker()
+    return fake

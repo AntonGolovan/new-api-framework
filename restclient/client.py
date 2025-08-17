@@ -59,6 +59,7 @@ class RestClient:
 
          if self.disable_log:
              rest_response = self.session.request(method=method, url=full_url, **kwargs)
+             rest_response.raise_for_status()  # Метод выбрасывает исключение если ответ от сервера отличается от 200
              return rest_response
 
          log.msg(
@@ -81,6 +82,7 @@ class RestClient:
              headers=rest_response.headers,
              json=self._get_json(rest_response)
          )
+         rest_response.raise_for_status() # Метод выбрасывает исключение если ответ от сервера отличается от 200
          return rest_response
 
      @staticmethod
