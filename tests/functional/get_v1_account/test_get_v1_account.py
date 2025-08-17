@@ -3,4 +3,4 @@ def test_get_v1_account_auth(auth_account_helper):
 
 
 def test_get_v1_account_not_auth(account_helper):
-    account_helper.dm_account_api.account_api.get_v1_account()
+    account_helper.dm_account_api.account_api.get_v1_account(validate_response=False)
