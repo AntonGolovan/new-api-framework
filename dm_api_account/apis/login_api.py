@@ -3,6 +3,12 @@ from dm_api_account.models.user_envelope import UserEnvelope
 from restclient.client import RestClient
 
 class LoginApi(RestClient):
+    """
+    API-клиент для аутентификации пользователей.
+    
+    Предоставляет методы для входа пользователей в систему с использованием
+    учетных данных (логин/пароль).
+    """
 
     def post_v1_account_login(
             self,
@@ -10,8 +16,17 @@ class LoginApi(RestClient):
             validate_response=True
     ):
         """
-         Authenticate via credentials
-        :return:
+        Аутентификация пользователя по учетным данным.
+        
+        Args:
+            login_credentials (LoginCredentials): Данные для входа (логин, пароль, remember_me)
+            validate_response (bool): Валидировать ли ответ в модель UserEnvelope
+            
+        Returns:
+            UserEnvelope или requests.Response: Валидированный ответ или сырой HTTP-ответ
+            
+        Raises:
+            requests.HTTPError: Если аутентификация не удалась
         """
         response = self.post(
             path=f'/v1/account/login',

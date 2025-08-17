@@ -34,11 +34,19 @@ def test_post_v1_account(account_helper, prepare_user):
 
 fake = Faker()
 
+
 @pytest.mark.parametrize(
     "login, password, email, expected_status_code, expected_message", [
-        pytest.param(fake.name(), fake.password(length=5), fake.email(), 400, "Validation failed", id="Invalid password"),
-        pytest.param('1', fake.password(length=random.randint(6, 8)), fake.email(), 400, "Validation failed", id='Invalid login'),
-        pytest.param(fake.name(), fake.password(length=random.randint(6, 8)), "example.com", 400, "Validation failed", id='Invalid email'),
+        pytest.param(
+            fake.name(), fake.password(length=5), fake.email(), 400, "Validation failed", id="Invalid password"
+        ),
+        pytest.param(
+            '1', fake.password(length=random.randint(6, 8)), fake.email(), 400, "Validation failed", id='Invalid login'
+        ),
+        pytest.param(
+            fake.name(), fake.password(length=random.randint(6, 8)), "example.com", 400, "Validation failed",
+            id='Invalid email'
+        ),
     ]
 )
 def test_negative_post_v1_account(account_helper, login, password, email, expected_status_code, expected_message):

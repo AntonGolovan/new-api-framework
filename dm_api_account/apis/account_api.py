@@ -7,11 +7,25 @@ from restclient.client import RestClient
 from dm_api_account.models.registration import Registration
 
 class AccountApi(RestClient):
+    """
+    API-клиент для работы с аккаунтами пользователей.
+    
+    Предоставляет методы для регистрации, аутентификации, управления профилем
+    и другими операциями с аккаунтами пользователей.
+    """
 
     def post_v1_account(self, registration: Registration):
         """
-         Register new user
-        :return:
+        Регистрация нового пользователя.
+        
+        Args:
+            registration (Registration): Данные для регистрации пользователя
+            
+        Returns:
+            requests.Response: HTTP-ответ от сервера
+            
+        Raises:
+            requests.HTTPError: Если регистрация не удалась
         """
         response = self.post(
             path=f'/v1/account',
@@ -21,12 +35,23 @@ class AccountApi(RestClient):
 
     def post_v1_account_password(
             self,
-            reset_password : ResetPassword,
-            validate_response = True,
+            reset_password: ResetPassword,
+            validate_response=True,
             **kwargs
     ):
         """
-        Reset registered user password
+        Сброс пароля зарегистрированного пользователя.
+        
+        Args:
+            reset_password (ResetPassword): Данные для сброса пароля
+            validate_response (bool): Валидировать ли ответ в модель UserEnvelope
+            **kwargs: Дополнительные параметры запроса
+            
+        Returns:
+            UserEnvelope или requests.Response: Валидированный ответ или сырой HTTP-ответ
+            
+        Raises:
+            requests.HTTPError: Если сброс пароля не удался
         """
         response = self.post(
             path=f'/v1/account/password',
@@ -40,11 +65,22 @@ class AccountApi(RestClient):
     def put_v1_account_password(
             self,
             change_password: ChangePassword,
-            validate_response = True,
+            validate_response=True,
             **kwargs
     ):
         """
-        Change registered user password
+        Изменение пароля зарегистрированного пользователя.
+        
+        Args:
+            change_password (ChangePassword): Данные для изменения пароля
+            validate_response (bool): Валидировать ли ответ в модель UserEnvelope
+            **kwargs: Дополнительные параметры запроса
+            
+        Returns:
+            UserEnvelope или requests.Response: Валидированный ответ или сырой HTTP-ответ
+            
+        Raises:
+            requests.HTTPError: Если изменение пароля не удалось
         """
         response = self.put(
             path=f'/v1/account/password',
@@ -55,14 +91,23 @@ class AccountApi(RestClient):
             return UserEnvelope(**response.json())
         return response
 
-
     def get_v1_account(
             self,
             validate_response=True,
             **kwargs
     ):
         """
-        Get current user
+        Получение данных текущего пользователя.
+        
+        Args:
+            validate_response (bool): Валидировать ли ответ в модель UserDetailsEnvelope
+            **kwargs: Дополнительные параметры запроса
+            
+        Returns:
+            UserDetailsEnvelope или requests.Response: Валидированный ответ или сырой HTTP-ответ
+            
+        Raises:
+            requests.HTTPError: Если получение данных не удалось
         """
         response = self.get(
             path=f'/v1/account',
@@ -72,14 +117,23 @@ class AccountApi(RestClient):
            return UserDetailsEnvelope(**response.json())
         return response
 
-
     def put_v1_account_token(
             self,
             token,
             validate_response=True
     ):
         """
-         Activate registered user
+        Активация зарегистрированного пользователя по токену.
+        
+        Args:
+            token (str): Токен активации
+            validate_response (bool): Валидировать ли ответ в модель UserEnvelope
+            
+        Returns:
+            UserEnvelope или requests.Response: Валидированный ответ или сырой HTTP-ответ
+            
+        Raises:
+            requests.HTTPError: Если активация не удалась
         """
         headers = {'accept': 'text/plain',}
         response = self.put(
@@ -90,13 +144,21 @@ class AccountApi(RestClient):
            return UserEnvelope(**response.json())
         return response
 
-
     def put_v1_account_email(
             self,
             change_email: ChangeEmail
     ):
         """
-         Reset registered user email
+        Изменение email зарегистрированного пользователя.
+        
+        Args:
+            change_email (ChangeEmail): Данные для изменения email
+            
+        Returns:
+            requests.Response: HTTP-ответ от сервера
+            
+        Raises:
+            requests.HTTPError: Если изменение email не удалось
         """
         response = self.put(
             path=f'/v1/account/email',
@@ -109,22 +171,31 @@ class AccountApi(RestClient):
             **kwargs
     ):
         """
-        Logout as current user
-        :return:
+        Выход текущего пользователя из системы.
+        
+        Args:
+            **kwargs: Дополнительные параметры запроса
+            
+        Raises:
+            requests.HTTPError: Если выход не удался
         """
         self.delete(
             path=f'/v1/account/login',
             **kwargs
         )
 
-
     def delete_v1_account_login_all(
             self,
             **kwargs
     ):
         """
-        Logout from every device
-        :return:
+        Выход пользователя со всех устройств.
+        
+        Args:
+            **kwargs: Дополнительные параметры запроса
+            
+        Raises:
+            requests.HTTPError: Если выход не удался
         """
         self.delete(
             path=f'/v1/account/login/all',

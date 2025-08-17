@@ -12,17 +12,38 @@ from retrying import retry
 
 
 def retry_if_result_none(result):
-    """Return True if we should retry (in this case when result is None), False otherwise"""
+    """
+    Функция для определения необходимости повторной попытки.
+    
+    Args:
+        result: Результат выполнения операции
+        
+    Returns:
+        bool: True если результат None (нужна повторная попытка), False в противном случае
+    """
     return result is None
 
 
 class AccountHelper:
+    """
+    Вспомогательный класс для работы с аккаунтами пользователей.
+    
+    Предоставляет высокоуровневые методы для регистрации, аутентификации,
+    управления профилем и работы с email-активацией.
+    """
 
     def __init__(
             self,
             dm_account_api: DMApiAccount,
             mailhog: MailHogApi
     ):
+        """
+        Инициализация AccountHelper.
+        
+        Args:
+            dm_account_api (DMApiAccount): Клиент API аккаунтов
+            mailhog (MailHogApi): Клиент MailHog для работы с email
+        """
         self.dm_account_api = dm_account_api
         self.mailhog = mailhog
 
@@ -31,6 +52,16 @@ class AccountHelper:
             login: str,
             password: str
     ):
+        """
+        Аутентификация клиента и установка токена для последующих запросов.
+        
+        Args:
+            login (str): Логин пользователя
+            password (str): Пароль пользователя
+            
+        Raises:
+            requests.HTTPError: Если аутентификация не удалась
+        """
         response = self.user_login(login=login, password=password)
         auth_token = {
             'x-dm-auth-token': response.headers['x-dm-auth-token']
@@ -45,6 +76,21 @@ class AccountHelper:
             old_password: str,
             new_password: str
     ):
+        """
+        Изменение пароля пользователя с автоматическим получением токена активации.
+        
+        Args:
+            login (str): Логин пользователя
+            email (str): Email пользователя
+            old_password (str): Старый пароль
+            new_password (str): Новый пароль
+            
+        Returns:
+            str: Новый пароль
+            
+        Raises:
+            requests.HTTPError: Если изменение пароля не удалось
+        """
         self.reset_user_password(login=login, email=email)
         token = self.fetch_activation_token(login=login)
 
@@ -62,6 +108,16 @@ class AccountHelper:
             login: str,
             email: str
     ):
+        """
+        Сброс пароля пользователя.
+        
+        Args:
+            login (str): Логин пользователя
+            email (str): Email пользователя
+            
+        Raises:
+            requests.HTTPError: Если сброс пароля не удался
+        """
         reset_password = ResetPassword(
             login=login,
             email=email
@@ -74,6 +130,21 @@ class AccountHelper:
             password: str,
             email: str
     ):
+        """
+        Регистрация нового пользователя с автоматической активацией.
+        
+        Args:
+            login (str): Логин пользователя
+            password (str): Пароль пользователя
+            email (str): Email пользователя
+            
+        Returns:
+            requests.Response: Ответ от сервера после активации
+            
+        Raises:
+            AssertionError: Если регистрация или активация не удались
+            requests.HTTPError: Если запрос к API не удался
+        """
         registration = Registration(
             login=login,
             password=password,
@@ -97,6 +168,23 @@ class AccountHelper:
             validate_response=False,
             validate_headers=False
     ):
+        """
+        Вход пользователя в систему.
+        
+        Args:
+            login (str): Логин пользователя
+            password (str): Пароль пользователя
+            remember_me (bool, optional): Флаг "Запомнить меня". По умолчанию True
+            validate_response (bool, optional): Валидировать ли ответ. По умолчанию False
+            validate_headers (bool, optional): Проверять ли наличие токена в заголовках. По умолчанию False
+            
+        Returns:
+            UserEnvelope или requests.Response: Ответ от сервера
+            
+        Raises:
+            requests.HTTPError: Если вход не удался
+            AssertionError: Если validate_headers=True и токен отсутствует
+        """
         login_credentials = LoginCredentials(
             login=login,
             password=password,
@@ -111,13 +199,37 @@ class AccountHelper:
         return response
 
     def user_logout(self):
+        """
+        Выход текущего пользователя из системы.
+        
+        Raises:
+            requests.HTTPError: Если выход не удался
+        """
         self.dm_account_api.account_api.delete_v1_account_login()
 
     def user_logout_every_device(self):
+        """
+        Выход пользователя со всех устройств.
+        
+        Raises:
+            requests.HTTPError: Если выход не удался
+        """
         self.dm_account_api.account_api.delete_v1_account_login_all()
 
     @retry(stop_max_attempt_number=5, retry_on_result=retry_if_result_none, wait_fixed=1000)
-    def get_activation_token_by_login(self,login):
+    def get_activation_token_by_login(self, login):
+        """
+        Получение токена активации для пользователя по логину.
+        
+        Метод выполняет повторные попытки до 5 раз с интервалом 1 секунда,
+        если токен не найден.
+        
+        Args:
+            login (str): Логин пользователя
+            
+        Returns:
+            str или None: Токен активации или None если не найден
+        """
         token = None
         response = self.mailhog.mailhog_api.get_api_v2_messages()
         for item in response.json()['items']:
@@ -138,6 +250,21 @@ class AccountHelper:
             password: str,
             email: str
     ):
+        """
+        Изменение email пользователя.
+        
+        Args:
+            login (str): Логин пользователя
+            password (str): Пароль пользователя
+            email (str): Новый email
+            
+        Returns:
+            requests.Response: Ответ от сервера
+            
+        Raises:
+            requests.HTTPError: Если изменение email не удалось
+            AssertionError: Если статус ответа не 200
+        """
         change_email = ChangeEmail(
             login=login,
             password=password,
@@ -151,6 +278,18 @@ class AccountHelper:
             self,
             login
     ):
+        """
+        Получение токена активации с проверкой его наличия.
+        
+        Args:
+            login (str): Логин пользователя
+            
+        Returns:
+            str: Токен активации
+            
+        Raises:
+            AssertionError: Если токен не найден
+        """
         token = self.get_activation_token_by_login(login=login)
         assert token is not None, f'Токен для пользователя {login} не был получен'
         return token
@@ -160,6 +299,20 @@ class AccountHelper:
             token,
             validate_response
     ):
+        """
+        Активация пользователя по токену.
+        
+        Args:
+            token (str): Токен активации
+            validate_response (bool): Валидировать ли ответ
+            
+        Returns:
+            requests.Response: Ответ от сервера
+            
+        Raises:
+            requests.HTTPError: Если активация не удалась
+            AssertionError: Если статус ответа не 200
+        """
         response = self.dm_account_api.account_api.put_v1_account_token(
             token=token, validate_response=validate_response
             )
